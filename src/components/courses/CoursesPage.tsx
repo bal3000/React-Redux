@@ -1,22 +1,18 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import PropTypes from "prop-types";
 import { AppState } from "../../redux/configure.store";
-import * as courseActions from "../../redux/actions/course.actions";
+import { createCourse } from "../../redux/actions/course.actions";
 import { Course } from "../../models/course.interface";
-import { CourseActionTypes } from "../../redux/types/course.types";
-import { Dispatch } from "redux";
 
 interface CoursesStateProps {
   courses: Course[];
+  createCourse: typeof createCourse;
 }
+interface CoursePageProps {}
 
-interface CourseProps extends CoursesStateProps {
-  dispatch: Dispatch<CourseActionTypes>;
-}
+type CourseProps = CoursesStateProps & CoursePageProps;
 
 function CoursesPage(props: CourseProps): JSX.Element {
-  // TODO: Add <Course>
   const [course, setCourse] = useState<Course>({
     id: 0,
     slug: "",
@@ -30,8 +26,7 @@ function CoursesPage(props: CourseProps): JSX.Element {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    props.dispatch(courseActions.createCourse(course));
-    alert(course.title);
+    props.createCourse(course);
   };
 
   return (
@@ -48,15 +43,10 @@ function CoursesPage(props: CourseProps): JSX.Element {
   );
 }
 
-CoursesPage.propTypes = {
-  courses: PropTypes.array.isRequired,
-  dispatch: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = (state: AppState): CoursesStateProps => {
+const mapStateToProps = (state: AppState) => {
   return {
     courses: state.courses.courses,
   };
 };
 
-export default connect(mapStateToProps)(CoursesPage);
+export default connect(mapStateToProps, { createCourse })(CoursesPage);
