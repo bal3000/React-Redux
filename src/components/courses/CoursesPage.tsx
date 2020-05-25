@@ -40,11 +40,16 @@ function CoursesPage(props: CourseProps): JSX.Element {
       <h3>Add Course</h3>
       <input type="text" onChange={handleChange} value={course.title} />
       <input type="submit" value="Save" />
+
+      {props.courses.map((c) => (
+        <div key={c.title}>{c.title}</div>
+      ))}
     </form>
   );
 }
 
 CoursesPage.propTypes = {
+  courses: PropTypes.array.isRequired,
   dispatch: PropTypes.func.isRequired,
 };
 
