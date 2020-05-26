@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { AppState } from "../../redux/configure.store";
 import { loadCourses } from "../../redux/actions/course.actions";
@@ -17,18 +18,25 @@ interface CoursePageProps {}
 
 type CourseProps = CoursesStateProps & CoursePageProps;
 
-function CoursesPage({ courses, loadCourses }: CourseProps): JSX.Element {
+function CoursesPage({
+  courses,
+  authors,
+  loadCourses,
+  loadAuthors,
+}: CourseProps): JSX.Element {
   useEffect(() => {
     async function fetchData() {
       try {
-        loadCourses();
-        loadAuthors();
+        if (courses.length === 0 && authors.length === 0) {
+          loadCourses();
+          loadAuthors();
+        }
       } catch (error) {
         alert(`error: ${error}`);
       }
     }
     fetchData();
-  }, [loadCourses]);
+  }, [authors.length, courses.length, loadAuthors, loadCourses]);
 
   return (
     <React.Fragment>
@@ -38,15 +46,26 @@ function CoursesPage({ courses, loadCourses }: CourseProps): JSX.Element {
   );
 }
 
+CoursesPage.propTypes = {
+  authors: PropTypes.array.isRequired,
+  courses: PropTypes.array.isRequired,
+  loadCourses: PropTypes.func.isRequired,
+  loadAuthors: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (state: AppState) => {
   return {
-    courses: state.courses.courses?.map((course) => {
-      return {
-        ...course,
-        authorName: state.authors.authors.find((a) => a.id === course.authorId)
-          ?.name,
-      };
-    }),
+    courses:
+      state.courses?.courses.length === 0
+        ? []
+        : state.courses?.courses.map((course) => {
+            return {
+              ...course,
+              authorName: state.authors.authors.find(
+                (a) => a.id === course.authorId
+              )?.name,
+            };
+          }),
     authors: state.authors.authors,
   };
 };
