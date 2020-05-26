@@ -1,45 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { AppState } from "../../redux/configure.store";
-import { createCourse } from "../../redux/actions/course.actions";
+import { createCourse, loadCourses } from "../../redux/actions/course.actions";
 import { Course } from "../../models/course.interface";
 
 interface CoursesStateProps {
   courses: Course[];
   createCourse: typeof createCourse;
+  loadCourses: any;
 }
 interface CoursePageProps {}
 
 type CourseProps = CoursesStateProps & CoursePageProps;
 
-function CoursesPage(props: CourseProps): JSX.Element {
-  const [course, setCourse] = useState<Course>({
-    id: 0,
-    slug: "",
-    title: "",
-    authorId: 0,
-    category: "",
-  });
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-    setCourse({ ...course, title: event.target.value });
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    props.createCourse(course);
-  };
+function CoursesPage({
+  courses,
+  createCourse,
+  loadCourses,
+}: CourseProps): JSX.Element {
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        loadCourses();
+      } catch (error) {
+        alert(`error: ${error}`);
+      }
+    }
+    fetchData();
+  }, [loadCourses]);
 
   return (
-    <form onSubmit={handleSubmit}>
+    <React.Fragment>
       <h2>Courses</h2>
-      <h3>Add Course</h3>
-      <input type="text" onChange={handleChange} value={course.title} />
-      <input type="submit" value="Save" />
-
-      {props.courses.map((c) => (
+      {courses.map((c) => (
         <div key={c.title}>{c.title}</div>
       ))}
-    </form>
+    </React.Fragment>
   );
 }
 
@@ -49,4 +45,6 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 
-export default connect(mapStateToProps, { createCourse })(CoursesPage);
+export default connect(mapStateToProps, { createCourse, loadCourses })(
+  CoursesPage
+);

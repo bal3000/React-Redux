@@ -2,6 +2,7 @@ import {
   CourseState,
   CourseActionTypes,
   CREATE_COURSE,
+  LOAD_COURSES_SUCCESS,
 } from "../types/course.types";
 
 const initialState: CourseState = {
@@ -15,6 +16,8 @@ export default function courseReducer(
   switch (action.type) {
     case CREATE_COURSE:
       return { courses: [...state.courses, { ...action.course }] };
+    case LOAD_COURSES_SUCCESS:
+      return { ...state, courses: action.courses };
     default:
       return state;
   }
