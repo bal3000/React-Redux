@@ -1,27 +1,28 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { AppState } from "../../redux/configure.store";
-import { createCourse, loadCourses } from "../../redux/actions/course.actions";
+import { loadCourses } from "../../redux/actions/course.actions";
+import { loadAuthors } from "../../redux/actions/author.actions";
 import { Course } from "../../models/course.interface";
+import CourseList from "./CourseList";
+import { Author } from "../../models/author.interface";
 
 interface CoursesStateProps {
   courses: Course[];
-  createCourse: typeof createCourse;
+  authors: Author[];
   loadCourses: any;
+  loadAuthors: any;
 }
 interface CoursePageProps {}
 
 type CourseProps = CoursesStateProps & CoursePageProps;
 
-function CoursesPage({
-  courses,
-  createCourse,
-  loadCourses,
-}: CourseProps): JSX.Element {
+function CoursesPage({ courses, loadCourses }: CourseProps): JSX.Element {
   useEffect(() => {
     async function fetchData() {
       try {
         loadCourses();
+        loadAuthors();
       } catch (error) {
         alert(`error: ${error}`);
       }
@@ -32,19 +33,25 @@ function CoursesPage({
   return (
     <React.Fragment>
       <h2>Courses</h2>
-      {courses.map((c) => (
-        <div key={c.title}>{c.title}</div>
-      ))}
+      <CourseList courses={courses} />
     </React.Fragment>
   );
 }
 
 const mapStateToProps = (state: AppState) => {
   return {
-    courses: state.courses.courses,
+    courses: state.courses.courses?.map((course) => {
+      return {
+        ...course,
+        authorName: state.authors.authors.find((a) => a.id === course.authorId)
+          ?.name,
+      };
+    }),
+    authors: state.authors.authors,
   };
 };
 
-export default connect(mapStateToProps, { createCourse, loadCourses })(
-  CoursesPage
-);
+export default connect(mapStateToProps, {
+  loadCourses,
+  loadAuthors,
+})(CoursesPage);
