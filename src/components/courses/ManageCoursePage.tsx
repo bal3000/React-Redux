@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { AppState } from "../../redux/configure.store";
@@ -6,6 +6,8 @@ import { loadCourses } from "../../redux/actions/course.actions";
 import { loadAuthors } from "../../redux/actions/author.actions";
 import { Course } from "../../models/course.interface";
 import { Author } from "../../models/author.interface";
+import { FormErrors } from "../../models/form-errors.interface";
+import CourseForm from "./CourseForm";
 
 interface ManageCourseStateProps {
   courses: Course[];
@@ -13,21 +15,29 @@ interface ManageCourseStateProps {
   loadCourses: any;
   loadAuthors: any;
 }
-interface ManageCoursePageProps {}
+interface ManageCoursePageProps {
+  course: Course;
+}
 
 type ManageCourseProps = ManageCourseStateProps & ManageCoursePageProps;
 
 function ManageCoursePage({
+  course: initialCourse,
   courses,
   authors,
   loadCourses,
   loadAuthors,
 }: ManageCourseProps): JSX.Element {
+  const [course, setCourse] = useState({ ...initialCourse });
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     async function fetchData() {
       try {
-        if (courses.length === 0 && authors.length === 0) {
+        if (courses.length === 0) {
           loadCourses();
+        }
+        if (authors.length === 0) {
           loadAuthors();
         }
       } catch (error) {
@@ -35,12 +45,17 @@ function ManageCoursePage({
       }
     }
     fetchData();
-  }, [authors.length, courses.length, loadAuthors, loadCourses]);
+  }, []);
 
   return (
-    <React.Fragment>
-      <h2>Manage Course</h2>
-    </React.Fragment>
+    <CourseForm
+      course={course}
+      errors={errors}
+      authors={authors}
+      saving={false}
+      onChange={() => {}}
+      onSave={() => {}}
+    />
   );
 }
 
@@ -53,6 +68,14 @@ ManageCoursePage.propTypes = {
 
 const mapStateToProps = (state: AppState) => {
   return {
+    course: {
+      id: 0,
+      slug: "",
+      title: "",
+      authorName: "",
+      authorId: 0,
+      category: "",
+    },
     courses: state.courses.courses,
     authors: state.authors.authors,
   };
