@@ -47,13 +47,23 @@ function ManageCoursePage({
     fetchData();
   }, []);
 
+  const handleChange = ({
+    target,
+  }: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = target;
+    setCourse({
+      ...course,
+      [name]: name === "authorId" ? parseInt(value, 10) : value,
+    });
+  };
+
   return (
     <CourseForm
       course={course}
       errors={errors}
       authors={authors}
       saving={false}
-      onChange={() => {}}
+      onChange={handleChange}
       onSave={() => {}}
     />
   );
