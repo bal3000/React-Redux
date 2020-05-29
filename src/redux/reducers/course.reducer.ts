@@ -1,8 +1,9 @@
 import {
   CourseState,
   CourseActionTypes,
-  CREATE_COURSE,
   LOAD_COURSES_SUCCESS,
+  CREATE_COURSES_SUCCESS,
+  UPDATE_COURSES_SUCCESS,
 } from "../types/course.types";
 
 const initialState: CourseState = {
@@ -14,10 +15,16 @@ export default function courseReducer(
   action: CourseActionTypes
 ): CourseState {
   switch (action.type) {
-    case CREATE_COURSE:
+    case CREATE_COURSES_SUCCESS:
       return { courses: [...state.courses, { ...action.course }] };
     case LOAD_COURSES_SUCCESS:
       return { ...state, courses: action.courses };
+    case UPDATE_COURSES_SUCCESS:
+      return {
+        courses: state.courses.map((course) =>
+          course.id === action.course.id ? action.course : course
+        ),
+      };
     default:
       return state;
   }
