@@ -15,6 +15,7 @@ interface CoursesStateProps {
   authors: Author[];
   loadCourses: any;
   loadAuthors: any;
+  loading: boolean;
 }
 interface CoursePageProps {}
 
@@ -25,6 +26,7 @@ function CoursesPage({
   authors,
   loadCourses,
   loadAuthors,
+  loading,
 }: CourseProps): JSX.Element {
   const [redirectObj, setRedirectObj] = useState({
     redirectToAddCoursePage: false,
@@ -48,15 +50,20 @@ function CoursesPage({
     <React.Fragment>
       {redirectObj.redirectToAddCoursePage && <Redirect to="/course" />}
       <h2>Courses</h2>
-      <Spinner />
-      <button
-        style={{ marginBottom: 20 }}
-        className="btn btn-primary add-course"
-        onClick={() => setRedirectObj({ redirectToAddCoursePage: true })}
-      >
-        Add Course
-      </button>
-      <CourseList courses={courses} />
+      {loading ? (
+        <Spinner />
+      ) : (
+        <React.Fragment>
+          <button
+            style={{ marginBottom: 20 }}
+            className="btn btn-primary add-course"
+            onClick={() => setRedirectObj({ redirectToAddCoursePage: true })}
+          >
+            Add Course
+          </button>
+          <CourseList courses={courses} />
+        </React.Fragment>
+      )}
     </React.Fragment>
   );
 }
@@ -66,6 +73,7 @@ CoursesPage.propTypes = {
   courses: PropTypes.array.isRequired,
   loadCourses: PropTypes.func.isRequired,
   loadAuthors: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state: AppState) => {
@@ -82,6 +90,7 @@ const mapStateToProps = (state: AppState) => {
             };
           }),
     authors: state.authors.authors,
+    loading: state.apiCallStatus > 0,
   };
 };
 

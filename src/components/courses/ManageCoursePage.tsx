@@ -10,6 +10,8 @@ import { Author } from "../../models/author.interface";
 import { FormErrors } from "../../models/form-errors.interface";
 import CourseForm from "./CourseForm";
 import { match } from "react-router-dom";
+import Spinner from "../common/Spinner";
+import CoursesPage from "./CoursesPage";
 
 interface ManageCourseStateProps {
   courses: Course[];
@@ -66,7 +68,9 @@ function ManageCoursePage({
     props.saveCourse(course).then(() => props.history.push("/courses"));
   };
 
-  return (
+  return props.authors.length === 0 || props.courses.length === 0 ? (
+    <Spinner />
+  ) : (
     <CourseForm
       course={course}
       errors={errors}

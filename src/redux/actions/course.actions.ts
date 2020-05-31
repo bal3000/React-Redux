@@ -1,3 +1,5 @@
+import { Action } from "redux";
+import { ThunkAction } from "redux-thunk";
 import * as courseApi from "../../api/courseApi";
 import { Course } from "../../models/course.interface";
 import {
@@ -6,9 +8,8 @@ import {
   CREATE_COURSES_SUCCESS,
   UPDATE_COURSES_SUCCESS,
 } from "../types/course.types";
-import { ThunkAction } from "redux-thunk";
 import { AppState } from "../configure.store";
-import { Action } from "redux";
+import { beginApiCall } from "./apiStatus.actions";
 
 export function loadCoursesSuccess(courses: Course[]): CourseActionTypes {
   return { type: LOAD_COURSES_SUCCESS, courses };
@@ -25,6 +26,7 @@ export function updateCourseSuccess(course: Course): CourseActionTypes {
 export function loadCourses(): ThunkAction<void, AppState, null, Action> {
   return async (dispatch) => {
     try {
+      dispatch(beginApiCall());
       const courses = await getCourses();
       dispatch(loadCoursesSuccess(courses));
     } catch (error) {
@@ -38,6 +40,7 @@ export function saveCourse(
 ): ThunkAction<void, AppState, null, Action> {
   return async (dispatch) => {
     try {
+      dispatch(beginApiCall());
       const savedCourse = await courseApi.saveCourse(course);
       course.id
         ? dispatch(updateCourseSuccess(savedCourse))
