@@ -7,6 +7,7 @@ import { loadCourses } from "../../redux/actions/course.actions";
 import { loadAuthors } from "../../redux/actions/author.actions";
 import { Course } from "../../models/course.interface";
 import CourseList from "./CourseList";
+import Spinner from "../common/Spinner";
 import { Author } from "../../models/author.interface";
 
 interface CoursesStateProps {
@@ -45,8 +46,9 @@ function CoursesPage({
 
   return (
     <React.Fragment>
-      <h2>Courses</h2>
       {redirectObj.redirectToAddCoursePage && <Redirect to="/course" />}
+      <h2>Courses</h2>
+      <Spinner />
       <button
         style={{ marginBottom: 20 }}
         className="btn btn-primary add-course"
