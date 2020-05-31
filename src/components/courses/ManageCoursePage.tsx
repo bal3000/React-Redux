@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { History, LocationState } from "history";
 import { AppState } from "../../redux/configure.store";
 import { loadCourses, saveCourse } from "../../redux/actions/course.actions";
 import { loadAuthors } from "../../redux/actions/author.actions";
@@ -8,6 +9,7 @@ import { Course } from "../../models/course.interface";
 import { Author } from "../../models/author.interface";
 import { FormErrors } from "../../models/form-errors.interface";
 import CourseForm from "./CourseForm";
+import { match } from "react-router-dom";
 
 interface ManageCourseStateProps {
   courses: Course[];
@@ -17,18 +19,16 @@ interface ManageCourseStateProps {
   saveCourse: any;
 }
 interface ManageCoursePageProps {
+  match: match<{ slug: string }>;
   course: Course;
+  history: History<LocationState>;
 }
 
 type ManageCourseProps = ManageCourseStateProps & ManageCoursePageProps;
 
 function ManageCoursePage({
   course: initialCourse,
-  courses,
-  authors,
-  loadCourses,
-  loadAuthors,
-  saveCourse,
+  ...props
 }: ManageCourseProps): JSX.Element {
   const [course, setCourse] = useState({ ...initialCourse });
   const [errors, setErrors] = useState({});
@@ -36,18 +36,20 @@ function ManageCoursePage({
   useEffect(() => {
     async function fetchData() {
       try {
-        if (courses.length === 0) {
-          loadCourses();
+        if (props.courses.length === 0) {
+          props.loadCourses();
+        } else {
+          setCourse({ ...initialCourse });
         }
-        if (authors.length === 0) {
-          loadAuthors();
+        if (props.authors.length === 0) {
+          props.loadAuthors();
         }
       } catch (error) {
         alert(`error: ${error}`);
       }
     }
     fetchData();
-  }, []);
+  }, [initialCourse]);
 
   const handleChange = ({
     target,
@@ -61,14 +63,14 @@ function ManageCoursePage({
 
   const handleSave = (event: React.FormEvent<Element>) => {
     event.preventDefault();
-    saveCourse(course);
+    props.saveCourse(course).then(() => props.history.push("/courses"));
   };
 
   return (
     <CourseForm
       course={course}
       errors={errors}
-      authors={authors}
+      authors={props.authors}
       saving={false}
       onChange={handleChange}
       onSave={handleSave}
@@ -84,16 +86,28 @@ ManageCoursePage.propTypes = {
   saveCourse: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state: AppState) => {
+export function getCourseBySlug(
+  courses: Course[],
+  slug: string
+): Course | null {
+  return courses.find((course) => course.slug === slug) || null;
+}
+
+const mapStateToProps = (state: AppState, ownProps: ManageCoursePageProps) => {
+  const slug = ownProps.match.params.slug;
+  const selected = getCourseBySlug(state.courses.courses, slug);
+  const newCourse = {
+    id: 0,
+    slug: "",
+    title: "",
+    authorName: "",
+    authorId: 0,
+    category: "",
+  };
+  const course =
+    state.courses.courses.length > 0 && selected ? selected : newCourse;
   return {
-    course: {
-      id: 0,
-      slug: "",
-      title: "",
-      authorName: "",
-      authorId: 0,
-      category: "",
-    },
+    course,
     courses: state.courses.courses,
     authors: state.authors.authors,
   };
