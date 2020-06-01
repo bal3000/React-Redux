@@ -49,11 +49,13 @@ function CoursesPage({
     fetchData();
   }, []);
 
-  const handleDelete = (course: Course) => {
+  const handleDelete = async (course: Course) => {
     toast.success("Course Deleted");
-    deleteCourse(course).catch((error: any) =>
-      toast.error(`Delete failed. ${error.message}`, { autoClose: false })
-    );
+    try {
+      await deleteCourse(course);
+    } catch (error) {
+      toast.error(`Delete failed. ${error.message}`, { autoClose: false });
+    }
   };
 
   return (
