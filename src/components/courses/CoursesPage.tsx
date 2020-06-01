@@ -51,7 +51,9 @@ function CoursesPage({
 
   const handleDelete = (course: Course) => {
     toast.success("Course Deleted");
-    deleteCourse(course);
+    deleteCourse(course).catch((error: any) =>
+      toast.error(`Delete failed. ${error.message}`, { autoClose: false })
+    );
   };
 
   return (
