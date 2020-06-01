@@ -4,6 +4,7 @@ import {
   LOAD_COURSES_SUCCESS,
   CREATE_COURSES_SUCCESS,
   UPDATE_COURSES_SUCCESS,
+  DELETE_COURSE_OPTIMISTIC,
 } from "../types/course.types";
 
 const initialState: CourseState = {
@@ -23,6 +24,12 @@ export default function courseReducer(
       return {
         courses: state.courses.map((course) =>
           course.id === action.course.id ? action.course : course
+        ),
+      };
+    case DELETE_COURSE_OPTIMISTIC:
+      return {
+        courses: state.courses.filter(
+          (course) => course.id !== action.course.id
         ),
       };
     default:

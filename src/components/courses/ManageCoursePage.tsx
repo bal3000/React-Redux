@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { History, LocationState } from "history";
 import { AppState } from "../../redux/configure.store";
+import { toast } from "react-toastify";
 import { loadCourses, saveCourse } from "../../redux/actions/course.actions";
 import { loadAuthors } from "../../redux/actions/author.actions";
 import { Course } from "../../models/course.interface";
@@ -11,7 +12,6 @@ import { FormErrors } from "../../models/form-errors.interface";
 import CourseForm from "./CourseForm";
 import { match } from "react-router-dom";
 import Spinner from "../common/Spinner";
-import CoursesPage from "./CoursesPage";
 
 interface ManageCourseStateProps {
   courses: Course[];
@@ -34,6 +34,7 @@ function ManageCoursePage({
 }: ManageCourseProps): JSX.Element {
   const [course, setCourse] = useState({ ...initialCourse });
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -65,7 +66,29 @@ function ManageCoursePage({
 
   const handleSave = (event: React.FormEvent<Element>) => {
     event.preventDefault();
-    props.saveCourse(course).then(() => props.history.push("/courses"));
+    if (!formIsValid()) return;
+    setSaving(true);
+    props
+      .saveCourse(course)
+      .then(() => {
+        toast.success("Course Saved");
+        props.history.push("/courses");
+      })
+      .catch((error: any) => {
+        setSaving(false);
+        setErrors({ onSave: error.message });
+      });
+  };
+
+  const formIsValid = (): boolean => {
+    const { title, authorId, category } = course;
+    const _errors: FormErrors = {};
+    if (!title) _errors.title = "Title is required";
+    if (authorId === 0) _errors.authorId = "Author ID is required";
+    if (!category) _errors.category = "Category is required";
+
+    setErrors(_errors);
+    return Object.keys(_errors).length === 0;
   };
 
   return props.authors.length === 0 || props.courses.length === 0 ? (
@@ -75,7 +98,7 @@ function ManageCoursePage({
       course={course}
       errors={errors}
       authors={props.authors}
-      saving={false}
+      saving={saving}
       onChange={handleChange}
       onSave={handleSave}
     />

@@ -3,18 +3,20 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 import { AppState } from "../../redux/configure.store";
-import { loadCourses } from "../../redux/actions/course.actions";
+import { loadCourses, deleteCourse } from "../../redux/actions/course.actions";
 import { loadAuthors } from "../../redux/actions/author.actions";
 import { Course } from "../../models/course.interface";
 import CourseList from "./CourseList";
 import Spinner from "../common/Spinner";
 import { Author } from "../../models/author.interface";
+import { toast } from "react-toastify";
 
 interface CoursesStateProps {
   courses: Course[];
   authors: Author[];
   loadCourses: any;
   loadAuthors: any;
+  deleteCourse: any;
   loading: boolean;
 }
 interface CoursePageProps {}
@@ -26,6 +28,7 @@ function CoursesPage({
   authors,
   loadCourses,
   loadAuthors,
+  deleteCourse,
   loading,
 }: CourseProps): JSX.Element {
   const [redirectObj, setRedirectObj] = useState({
@@ -44,7 +47,12 @@ function CoursesPage({
       }
     }
     fetchData();
-  }, [authors.length, courses.length, loadAuthors, loadCourses]);
+  }, []);
+
+  const handleDelete = (course: Course) => {
+    toast.success("Course Deleted");
+    deleteCourse(course);
+  };
 
   return (
     <React.Fragment>
@@ -61,7 +69,7 @@ function CoursesPage({
           >
             Add Course
           </button>
-          <CourseList courses={courses} />
+          <CourseList courses={courses} onDelete={handleDelete} />
         </React.Fragment>
       )}
     </React.Fragment>
@@ -97,4 +105,5 @@ const mapStateToProps = (state: AppState) => {
 export default connect(mapStateToProps, {
   loadCourses,
   loadAuthors,
+  deleteCourse,
 })(CoursesPage);

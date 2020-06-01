@@ -7,9 +7,10 @@ import {
   LOAD_COURSES_SUCCESS,
   CREATE_COURSES_SUCCESS,
   UPDATE_COURSES_SUCCESS,
+  DELETE_COURSE_OPTIMISTIC,
 } from "../types/course.types";
 import { AppState } from "../configure.store";
-import { beginApiCall } from "./apiStatus.actions";
+import { beginApiCall, apiCallError } from "./apiStatus.actions";
 
 export function loadCoursesSuccess(courses: Course[]): CourseActionTypes {
   return { type: LOAD_COURSES_SUCCESS, courses };
@@ -23,6 +24,10 @@ export function updateCourseSuccess(course: Course): CourseActionTypes {
   return { type: UPDATE_COURSES_SUCCESS, course };
 }
 
+export function deleteCourseOptimistic(course: Course): CourseActionTypes {
+  return { type: DELETE_COURSE_OPTIMISTIC, course };
+}
+
 export function loadCourses(): ThunkAction<void, AppState, null, Action> {
   return async (dispatch) => {
     try {
@@ -30,6 +35,7 @@ export function loadCourses(): ThunkAction<void, AppState, null, Action> {
       const courses = await getCourses();
       dispatch(loadCoursesSuccess(courses));
     } catch (error) {
+      dispatch(apiCallError(error));
       throw error;
     }
   };
@@ -46,8 +52,18 @@ export function saveCourse(
         ? dispatch(updateCourseSuccess(savedCourse))
         : dispatch(createCourseSuccess(savedCourse));
     } catch (error) {
+      dispatch(apiCallError(error));
       throw error;
     }
+  };
+}
+
+export function deleteCourse(
+  course: Course
+): ThunkAction<void, AppState, null, Action> {
+  return async (dispatch) => {
+    dispatch(deleteCourseOptimistic(course));
+    return courseApi.deleteCourse(course.id);
   };
 }
 

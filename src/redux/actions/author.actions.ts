@@ -4,7 +4,7 @@ import * as authorApi from "../../api/authorApi";
 import { AuthorActionTypes, LOAD_AUTHOR_SUCCESS } from "../types/author.types";
 import { AppState } from "../configure.store";
 import { Author } from "../../models/author.interface";
-import { beginApiCall } from "./apiStatus.actions";
+import { beginApiCall, apiCallError } from "./apiStatus.actions";
 
 export function loadAuthorSuccess(authors: Author[]): AuthorActionTypes {
   return { type: LOAD_AUTHOR_SUCCESS, authors };
@@ -17,6 +17,7 @@ export function loadAuthors(): ThunkAction<void, AppState, null, Action> {
       const authors = await getAuthors();
       dispatch(loadAuthorSuccess(authors));
     } catch (error) {
+      dispatch(apiCallError(error));
       throw error;
     }
   };

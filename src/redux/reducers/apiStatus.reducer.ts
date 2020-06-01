@@ -2,6 +2,7 @@ import {
   SharedState,
   SharedActionTypes,
   BEGIN_API_CALL,
+  API_CALL_ERROR,
 } from "../types/shared.types";
 
 const initialState: SharedState = {
@@ -14,11 +15,14 @@ const actionTypeEndsInSuccess = (type: string): boolean => {
 
 export default function apiCallStatusReducer(
   state = initialState.apiCallsInProgress,
-  action: SharedActionTypes
+  action: SharedActionTypes | any
 ): number {
   if (action.type === BEGIN_API_CALL) {
     return state + 1;
-  } else if (actionTypeEndsInSuccess(action.type)) {
+  } else if (
+    action.type === API_CALL_ERROR ||
+    actionTypeEndsInSuccess(action.type)
+  ) {
     return state - 1;
   }
 

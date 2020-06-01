@@ -5,9 +5,10 @@ import { Course } from "../../models/course.interface";
 
 interface CourseListProps {
   courses: Course[];
+  onDelete: (course: Course) => void;
 }
 
-const CourseList = ({ courses }: CourseListProps) => (
+const CourseList = ({ courses, onDelete }: CourseListProps) => (
   <table className="table">
     <thead>
       <tr>
@@ -15,6 +16,7 @@ const CourseList = ({ courses }: CourseListProps) => (
         <th>Title</th>
         <th>Author</th>
         <th>Category</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -34,6 +36,14 @@ const CourseList = ({ courses }: CourseListProps) => (
             </td>
             <td>{course.authorName}</td>
             <td>{course.category}</td>
+            <td>
+              <button
+                className="btn btn-outline-danger"
+                onClick={() => onDelete(course)}
+              >
+                Delete
+              </button>
+            </td>
           </tr>
         );
       })}
@@ -43,6 +53,7 @@ const CourseList = ({ courses }: CourseListProps) => (
 
 CourseList.propTypes = {
   courses: PropTypes.array.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default CourseList;
